@@ -49,5 +49,5 @@ logs/
 gha-creds-*.json
 
 QWEN.md
-
+__pycache__/
 .*

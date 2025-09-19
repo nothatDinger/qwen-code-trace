@@ -64,6 +64,7 @@ export class TracedGeminiClient {
           tools: undefined,
           systemInstruction: undefined,
         },
+        history: (this.client.getHistory && typeof this.client.getHistory === 'function') ? this.client.getHistory() : undefined,
         model: defaultModel,
         promptId: prompt_id,
       },

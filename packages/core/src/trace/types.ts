@@ -132,5 +132,6 @@ export interface RawLLMData {
     model?: string;
     promptId?: string;
     error?: string;
+    history?: any[];
   };
 }

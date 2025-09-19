@@ -24,7 +24,7 @@ export class TracePersistence {
   }
 
   private getRawDataFile(sessionId: string): string {
-    return join(this.dataDir, `${sessionId}.raw.jsonl`);
+    return join(this.dataDir, `${sessionId}.raw.json`);
   }
 
   private readSessionFile(sessionId: string): TraceRequest[] {
@@ -183,8 +183,19 @@ export class TracePersistence {
    * Save raw LLM request/response data
    */
   saveRawLLMData(rawData: RawLLMData): void {
+    // Filter out terminal STOP-only responses
+    if (
+      rawData.type === 'response' &&
+      rawData.data &&
+      (rawData.data as any).response &&
+      (rawData.data as any).response.type === 'finished' &&
+      (rawData.data as any).response.value === 'STOP'
+    ) {
+      return;
+    }
     const file = this.getRawDataFile(rawData.sessionId);
-    appendFileSync(file, JSON.stringify(rawData) + '\n', 'utf-8');
+    // Keep only the last request's raw data: overwrite file with a single line
+    writeFileSync(file, JSON.stringify(rawData) + '\n', 'utf-8');
   }
 
   /**
