@@ -5,6 +5,7 @@
  */
 
 import type { Config, ToolCallRequestInfo } from '@qwen-code/qwen-code-core';
+import { TracedGeminiClient, TraceManager } from '@qwen-code/qwen-code-core';
 import {
   executeToolCall,
   shutdownTelemetry,
@@ -40,6 +41,9 @@ export async function runNonInteractive(
     });
 
     const geminiClient = config.getGeminiClient();
+    // Wrap with traced client using a shared TraceManager (per terminal session)
+    const traceManager = new TraceManager(process.cwd() + '/.trace');
+    const tracedClient = new TracedGeminiClient(geminiClient, config, traceManager);
 
     const abortController = new AbortController();
 
@@ -77,7 +81,7 @@ export async function runNonInteractive(
       }
       const toolCallRequests: ToolCallRequestInfo[] = [];
 
-      const responseStream = geminiClient.sendMessageStream(
+      const responseStream = tracedClient.sendMessageStream(
         currentMessages[0]?.parts || [],
         abortController.signal,
         prompt_id,

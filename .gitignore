@@ -49,3 +49,5 @@ logs/
 gha-creds-*.json
 
 QWEN.md
+
+.*

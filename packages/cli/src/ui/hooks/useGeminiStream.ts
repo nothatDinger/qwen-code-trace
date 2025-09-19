@@ -724,7 +724,11 @@ export const useGeminiStream = (
       setInitError(null);
 
       try {
-        const stream = geminiClient.sendMessageStream(
+        // Wrap client with tracing for REPL sessions
+        const { TracedGeminiClient } = await import('@qwen-code/qwen-code-core');
+        const { getTraceManager } = await import('../../services/traceService.js');
+        const tracedClient = new TracedGeminiClient(geminiClient, config as any, getTraceManager());
+        const stream = tracedClient.sendMessageStream(
           queryToSend,
           abortSignal,
           prompt_id!,

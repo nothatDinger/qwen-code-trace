@@ -20,7 +20,8 @@ import type {
   Status as CoreStatus,
   EditorType,
 } from '@qwen-code/qwen-code-core';
-import { CoreToolScheduler } from '@qwen-code/qwen-code-core';
+import { CoreToolScheduler, TracedCoreToolScheduler } from '@qwen-code/qwen-code-core';
+import { getTraceManager } from '../../services/traceService.js';
 import { useCallback, useState, useMemo } from 'react';
 import type {
   HistoryItemToolGroup,
@@ -132,15 +133,17 @@ export function useReactToolScheduler(
   );
 
   const scheduler = useMemo(
-    () =>
-      new CoreToolScheduler({
+    () => {
+      const base = new CoreToolScheduler({
         outputUpdateHandler,
         onAllToolCallsComplete: allToolCallsCompleteHandler,
         onToolCallsUpdate: toolCallsUpdateHandler,
         getPreferredEditor,
         config,
         onEditorClose,
-      }),
+      });
+      return new TracedCoreToolScheduler(base, getTraceManager());
+    },
     [
       config,
       outputUpdateHandler,
